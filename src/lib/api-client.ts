@@ -1,12 +1,10 @@
-import { Types } from "mongoose";
-
-export type CourseFormData = {
+export type ProductFormData = {
   title: string;
-  topic: string;
+  category: string;
   description: string;
   price: number;
-  duration: number; // in hours
-  modules: { title: string; content: string; duration: number }[]; // in minutes
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 type FetchOptions = {
@@ -40,30 +38,30 @@ class ApiClient {
     return response.json();
   }
 
-  async getCourses() {
-    return this.fetch<CourseFormData[]>("/courses");
+  async getProducts() {
+    return this.fetch<ProductFormData[]>("/products");
   }
 
-  async getCourse(id: string) {
-    return this.fetch<CourseFormData>(`/courses/${id}`);
+  async getProduct(id: string) {
+    return this.fetch<ProductFormData>(`/products/${id}`);
   }
 
-  async createCourse(courseData: CourseFormData) {
-    return this.fetch<CourseFormData>("/courses", {
+  async createProduct(ProductData: ProductFormData) {
+    return this.fetch<ProductFormData>("/products", {
       method: "POST",
-      body: courseData,
+      body: ProductData,
     });
   }
 
-  async updateCourse(id: string, courseData: Partial<CourseFormData>) {
-    return this.fetch<CourseFormData>(`/courses/${id}`, {
+  async updateProduct(id: string, ProductData: Partial<ProductFormData>) {
+    return this.fetch<ProductFormData>(`/products/${id}`, {
       method: "PUT",
-      body: courseData,
+      body: ProductData,
     });
   }
 
-  async deleteCourse(id: string) {
-    return this.fetch<void>(`/courses/${id}`, {
+  async deleteProduct(id: string) {
+    return this.fetch<void>(`/products/${id}`, {
       method: "DELETE",
     });
   }

@@ -6,16 +6,16 @@ import { Plus, Trash2, Loader2 } from "lucide-react";
 import { useNotification } from "./Notifiction";
 import { apiClient } from "@/lib/api-client";
 
-interface CourseFormData {
+interface ProductFormData {
   title: string;
-  topic: string;
+  category: string;
   description: string;
   price: number;
-  duration: number; // Duration in hours
-  modules: { title: string; content: string; duration: number }[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export default function AdminCourseForm() {
+export default function AdminProductForm() {
   const [loading, setLoading] = useState(false);
   const { showNotification } = useNotification();
 
@@ -25,38 +25,29 @@ export default function AdminCourseForm() {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<CourseFormData>({
+  } = useForm<ProductFormData>({
     defaultValues: {
       title: "",
-      topic: "",
+      category: "",
       description: "",
       price: 0,
-      duration: 0,
-      modules: [{ title: "", content: "", duration: 0 }],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "modules",
-  });
-
-  const onSubmit = async (data: CourseFormData) => {
+  const onSubmit = async (data: ProductFormData) => {
     setLoading(true);
     try {
-      await apiClient.createCourse(data);
-      showNotification("Course created successfully!", "success");
+      await apiClient.createProduct(data);
+      showNotification("Product created successfully!", "success");
 
       // Reset form after submission
       setValue("title", "");
-      setValue("topic", "");
+      setValue("category", "");
       setValue("description", "");
       setValue("price", 0);
-      setValue("duration", 0);
-      setValue("modules", [{ title: "", content: "", duration: 0 }]);
     } catch (error) {
       showNotification(
-        error instanceof Error ? error.message : "Failed to create course",
+        error instanceof Error ? error.message : "Failed to create Product",
         "error"
       );
     } finally {
@@ -66,9 +57,9 @@ export default function AdminCourseForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Course Title */}
+      {/* Product Title */}
       <div className="form-control">
-        <label className="label">Course Title</label>
+        <label className="label">Product Title</label>
         <input
           type="text"
           className={`input input-bordered ${
@@ -83,24 +74,24 @@ export default function AdminCourseForm() {
         )}
       </div>
 
-      {/* Course Topic */}
+      {/* Product category */}
       <div className="form-control">
-        <label className="label">Course Topic</label>
+        <label className="label">Product category</label>
         <input
           type="text"
           className={`input input-bordered ${
-            errors.topic ? "input-error" : ""
+            errors.category ? "input-error" : ""
           }`}
-          {...register("topic", { required: "Topic is required" })}
+          {...register("category", { required: "category is required" })}
         />
-        {errors.topic && (
+        {errors.category && (
           <span className="text-error text-sm mt-1">
-            {errors.topic.message}
+            {errors.category.message}
           </span>
         )}
       </div>
 
-      {/* Course Description */}
+      {/* Product Description */}
       <div className="form-control">
         <label className="label">Description</label>
         <textarea
@@ -116,7 +107,7 @@ export default function AdminCourseForm() {
         )}
       </div>
 
-      {/* Course Price */}
+      {/* Product Price */}
       <div className="form-control">
         <label className="label">Price ($)</label>
         <input
@@ -141,89 +132,7 @@ export default function AdminCourseForm() {
         )}
       </div>
 
-      {/* Course Duration */}
-      <div className="form-control">
-        <label className="label">Duration (hours)</label>
-        <input
-          type="number"
-          className={`input input-bordered ${
-            errors.duration ? "input-error" : ""
-          }`}
-          {...register("duration", {
-            required: "Duration is required",
-            valueAsNumber: true,
-            min: {
-              value: 0,
-              message: "Duration must be greater than or equal to 0",
-            },
-          })}
-        />
-        {errors.duration && (
-          <span className="text-error text-sm mt-1">
-            {errors.duration.message}
-          </span>
-        )}
-      </div>
-
-      {/* Modules */}
-      <div className="divider">Modules</div>
-      {fields.map((field, index) => (
-        <div key={field.id} className="card bg-base-200 p-4 mb-4">
-          <div className="form-control">
-            <label className="label">Module Title</label>
-            <input
-              type="text"
-              className="input input-bordered"
-              {...register(`modules.${index}.title`, {
-                required: "Title is required",
-              })}
-            />
-          </div>
-
-          <div className="form-control mt-4">
-            <label className="label">Content</label>
-            <textarea
-              className="textarea textarea-bordered"
-              {...register(`modules.${index}.content`, {
-                required: "Content is required",
-              })}
-            />
-          </div>
-
-          <div className="form-control mt-4">
-            <label className="label">Duration (minutes)</label>
-            <input
-              type="number"
-              className="input input-bordered"
-              {...register(`modules.${index}.duration`, {
-                required: "Duration is required",
-                valueAsNumber: true,
-                min: {
-                  value: 1,
-                  message: "Duration must be at least 1 minute",
-                },
-              })}
-            />
-          </div>
-
-          <div className="flex justify-end mt-4">
-            <button
-              type="button"
-              className="btn btn-error btn-sm"
-              onClick={() => remove(index)}
-            >
-              <Trash2 className="w-4 h-4" />
-              Remove Module
-            </button>
-          </div>
-        </div>
-      ))}
-
-      <button
-        type="button"
-        className="btn btn-outline btn-block"
-        onClick={() => append({ title: "", content: "", duration: 0 })}
-      >
+      <button type="button" className="btn btn-outline btn-block">
         <Plus className="w-4 h-4 mr-2" />
         Add Module
       </button>
@@ -236,10 +145,10 @@ export default function AdminCourseForm() {
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Creating Course...
+            Saving Product...
           </>
         ) : (
-          "Create Course"
+          "Create Product"
         )}
       </button>
     </form>
